@@ -1,0 +1,174 @@
+CODE 1: perform exploratory data analysis (EDA)
+
+import pandas as pd
+
+# Load dataset
+df = pd.read_csv("sentimentdataset.csv")
+
+# Preview dataset
+print("First 5 rows:")
+print(df.head())
+
+# Dataset information
+print("\nDataset Info:")
+print(df.info())
+
+# Statistical summary
+print("\nDescriptive Statistics:")
+print(df.describe())
+
+# Missing values
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# Average likes
+if "Likes" in df.columns:
+    print("\nAverage Likes:", df["Likes"].mean())
+
+# Platform frequency
+if "Platform" in df.columns:
+    print("\nPlatform Frequency:")
+    print(df["Platform"].value_counts())
+
+# Correlation between Likes and Retweets
+if {"Likes", "Retweets"}.issubset(df.columns):
+    print("\nCorrelation:")
+    print(df[["Likes", "Retweets"]].corr())
+
+# Skewness of Likes
+if "Likes" in df.columns:
+    print("\nSkewness of Likes:", df["Likes"].skew())
+
+# Average likes by platform
+if {"Platform", "Likes"}.issubset(df.columns):
+    print("\nAverage Likes per Platform:")
+    print(df.groupby("Platform")["Likes"].mean())
+
+PSEUDO-CODE:
+
+START
+
+Load CSV dataset
+
+Display first 5 rows
+
+Show dataset information:
+    Data types
+    Non-null values
+
+Show descriptive statistics
+
+Check missing values in each column
+
+IF Likes column exists:
+    Calculate average likes
+
+IF Platform column exists:
+    Count frequency of each platform
+
+IF Likes and Retweets columns exist:
+    Find correlation between them
+
+IF Likes column exists:
+    Calculate skewness of likes
+
+IF Platform and Likes columns exist:
+    Find average likes for each platform
+
+END
+
+
+CODE 2:
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load dataset
+df = pd.read_csv("sentimentdataset.csv")
+
+# Convert timestamp
+df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+df["Date"] = df["Timestamp"].dt.date
+
+# 1. Line Plot - Likes over time
+daily_likes = df.groupby("Date")["Likes"].sum()
+plt.plot(daily_likes.index, daily_likes.values, marker="o")
+plt.title("Likes Trend Over Time")
+plt.xticks(rotation=45)
+plt.show()
+
+# 2. Scatter Plot - Likes vs Retweets
+sns.scatterplot(x="Likes", y="Retweets", data=df)
+plt.title("Likes vs Retweets")
+plt.show()
+
+# 3. Bar Plot - Average Likes per Platform
+sns.barplot(x="Platform", y="Likes", data=df)
+plt.title("Average Likes per Platform")
+plt.xticks(rotation=45)
+plt.show()
+
+# 4. Histogram - Likes Distribution
+sns.histplot(df["Likes"], kde=True)
+plt.title("Distribution of Likes")
+plt.show()
+
+# 5. Box Plot - Likes by Platform
+sns.boxplot(x="Platform", y="Likes", data=df)
+plt.title("Likes Distribution per Platform")
+plt.xticks(rotation=45)
+plt.show()
+
+# 6. Heatmap - Correlation
+corr = df[["Likes", "Retweets"]].corr()
+sns.heatmap(corr, annot=True)
+plt.title("Correlation Heatmap")
+plt.show()
+
+# 7. Pie Chart - Sentiment Distribution
+sentiment_count = df["Sentiment"].value_counts()
+plt.pie(sentiment_count, labels=sentiment_count.index, autopct="%1.1f%%")
+plt.title("Sentiment Proportion")
+plt.show()
+
+# 8. Count Plot - Posts per Platform
+sns.countplot(x="Platform", data=df)
+plt.title("Posts per Platform")
+plt.xticks(rotation=45)
+plt.show()
+
+PSEUDO-CODE:
+
+START
+
+Load dataset
+
+Convert Timestamp column into datetime format
+Extract date from timestamp
+
+Create line plot:
+    Show likes trend over time
+
+Create scatter plot:
+    Compare likes and retweets
+
+Create bar plot:
+    Show average likes for each platform
+
+Create histogram:
+    Show likes distribution
+
+Create box plot:
+    Show likes distribution by platform
+
+Create heatmap:
+    Show correlation between numeric columns
+
+Create pie chart:
+    Show sentiment percentage distribution
+
+Create count plot:
+    Show number of posts per platform
+
+END

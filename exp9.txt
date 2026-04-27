@@ -1,0 +1,127 @@
+CODE 1: competitor activityanalysis
+
+import pandas as pd
+from google_play_scraper import reviews, Sort
+
+apps = {
+    "Uber": "com.ubercab",
+    "Ola": "com.olacabs.customer",
+    "Rapido": "com.rapido.passenger"
+}
+
+data = []
+
+for brand, app_id in apps.items():
+    print(f"Scraping {brand}...")
+
+    try:
+        result, _ = reviews(
+            app_id,
+            lang="en",
+            country="us",
+            sort=Sort.NEWEST,
+            count=20
+        )
+
+        for r in result:
+            data.append({
+                "Brand": brand,
+                "Rating": r["score"],
+                "Review": r["content"],
+                "Date": r["at"]
+            })
+
+        print(f"{len(result)} reviews scraped for {brand}")
+
+    except Exception as e:
+        print(f"Error scraping {brand}: {e}")
+
+df = pd.DataFrame(data)
+df.to_csv("competitor_reviews.csv", index=False)
+
+print("Data saved successfully!")
+
+PSEUDO-CODE:
+
+START
+
+Define app IDs for Uber, Ola, Rapido
+
+Create empty list
+
+FOR each app:
+    Fetch latest reviews from Google Play Store
+    
+    Extract:
+        Brand
+        Rating
+        Review
+        Date
+    
+    Store data in list
+
+Convert list into dataframe
+
+Save dataframe as CSV file
+
+END
+
+CODE 2:
+
+import pandas as pd
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+
+# Load data
+df = pd.read_csv("competitor_reviews.csv")
+
+# Sentiment analysis
+def get_sentiment(text):
+    score = TextBlob(str(text)).sentiment.polarity
+
+    if score > 0.05:
+        return "Positive"
+    elif score < -0.05:
+        return "Negative"
+    else:
+        return "Neutral"
+
+df["Sentiment"] = df["Review"].apply(get_sentiment)
+
+# Group data
+summary = df.groupby(["Sentiment", "Brand"]).size().unstack(fill_value=0)
+summary_percentage = (summary / summary.sum()) * 100
+
+# Plot graph
+summary_percentage.plot(kind="bar", figsize=(10,6))
+
+plt.title("Sentiment Analysis of Mobility Apps")
+plt.ylabel("Percentage")
+plt.xticks(rotation=0)
+plt.show()
+
+PSEUDO-CODE:
+
+START
+
+Load review dataset
+
+FOR each review:
+    Calculate sentiment score using TextBlob
+    
+    IF score > 0.05:
+        Positive
+    ELSE IF score < -0.05:
+        Negative
+    ELSE:
+        Neutral
+
+Store sentiment results
+
+Group reviews by brand and sentiment
+
+Calculate percentage
+
+Plot bar chart
+
+END

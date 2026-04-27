@@ -1,0 +1,87 @@
+CODE: perfrom data cleaning and storage 
+
+import pandas as pd
+import re
+import os
+import kagglehub
+
+# Load dataset
+path = kagglehub.dataset_download("saurabhshahane/twitter-sentiment-dataset")
+file = [f for f in os.listdir(path) if f.endswith(".csv")][0]
+df = pd.read_csv(os.path.join(path, file))
+
+print("Initial Shape:", df.shape)
+
+# Step 1: Convert text to lowercase
+df["text_processed"] = df["clean_text"].astype(str).str.lower()
+
+# Step 2: Remove URLs and mentions
+def clean_text(text):
+    text = re.sub(r'http\S+|www\S+|@\w+', '', text)
+    return text.strip()
+
+df["text_processed"] = df["text_processed"].apply(clean_text)
+
+# Step 3: Remove duplicates
+before = len(df)
+df = df.drop_duplicates(subset=["text_processed"])
+print("Duplicates removed:", before - len(df))
+
+# Step 4: Remove missing values
+df = df.dropna(subset=["text_processed"])
+
+# Step 5: Feature extraction (word count)
+df["word_count"] = df["text_processed"].apply(lambda x: len(str(x).split()))
+
+# Step 6: Handle missing category values
+df["category"] = df["category"].fillna(0).astype("category")
+
+# Step 7: Select final columns
+df_final = df[["text_processed", "category", "word_count"]]
+
+# Display final output
+print("\nFinal Cleaned Data:")
+print(df_final.head())
+
+# Save cleaned dataset
+df_final.to_csv("cleaned_twitter_business.csv", index=False)
+print("Saved successfully!")
+
+PSEUDO-CODE:
+
+START
+
+Download Twitter sentiment dataset
+Load CSV file into dataframe
+
+Print initial dataset shape
+
+Convert text column to lowercase
+
+Create function to:
+    Remove URLs
+    Remove user mentions
+    Remove extra spaces
+
+Apply cleaning function to text column
+
+Remove duplicate rows
+
+Remove missing text rows
+
+Create new feature:
+    Count number of words in each tweet
+
+Fill missing category values
+Convert category column type
+
+Select required columns:
+    text_processed
+    category
+    word_count
+
+Display final cleaned dataset
+
+Save cleaned dataset as CSV file
+
+END

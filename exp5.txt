@@ -1,0 +1,86 @@
+CODE: develop content based social media analytics
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from wordcloud import WordCloud
+
+# Download VADER lexicon
+nltk.download("vader_lexicon")
+
+# Load dataset
+df = pd.read_csv("sentimentdataset.csv")
+
+# Initialize sentiment analyzer
+sia = SentimentIntensityAnalyzer()
+
+# Calculate sentiment score
+df["Compound_Score"] = df["Text"].apply(
+    lambda x: sia.polarity_scores(str(x))["compound"]
+)
+
+# Classify sentiment
+def classify_sentiment(score):
+    if score >= 0.05:
+        return "Positive"
+    elif score <= -0.05:
+        return "Negative"
+    else:
+        return "Neutral"
+
+df["Sentiment"] = df["Compound_Score"].apply(classify_sentiment)
+
+# Sentiment distribution graph
+sns.countplot(x="Sentiment", data=df)
+plt.title("Sentiment Distribution")
+plt.show()
+
+# Word cloud for positive reviews
+positive_text = " ".join(df[df["Sentiment"] == "Positive"]["Text"])
+
+wordcloud = WordCloud(
+    width=800,
+    height=400,
+    background_color="white"
+).generate(positive_text)
+
+plt.imshow(wordcloud)
+plt.axis("off")
+plt.show()
+
+# Output
+print(df[["Text", "Sentiment"]].head())
+
+PSEUDO-CODE:
+
+START
+
+Import required libraries
+
+Download VADER lexicon
+
+Load dataset
+
+Initialize sentiment analyzer
+
+For each text:
+    Calculate compound sentiment score
+
+Classify sentiment:
+    If score >= 0.05 → Positive
+    If score <= -0.05 → Negative
+    Else → Neutral
+
+Store sentiment results in dataset
+
+Create count plot:
+    Show number of positive, negative, neutral texts
+
+Generate word cloud:
+    Use positive text data
+
+Display first few rows of text and sentiment
+
+END

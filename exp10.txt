@@ -1,0 +1,105 @@
+CODE: improving existing products
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load dataset
+try:
+    df = pd.read_csv("ola_reviews_master.csv")
+    print("Loaded", len(df), "reviews")
+except FileNotFoundError:
+    print("File not found")
+    exit()
+
+# Filter negative reviews
+df_neg = df[df["Rating"] <= 2]
+print("Negative reviews:", len(df_neg))
+
+# Categorize issues
+def analyze_review(text):
+    text = str(text).lower()
+
+    if any(word in text for word in ["cancel", "wait", "no show"]):
+        return pd.Series(["Reliability", "Reduce driver cancellations"])
+
+    elif any(word in text for word in ["charge", "money", "refund", "fare"]):
+        return pd.Series(["Billing", "Improve payment/refund system"])
+
+    elif any(word in text for word in ["dirty", "ac", "smell"]):
+        return pd.Series(["Ride Quality", "Improve vehicle maintenance"])
+
+    elif any(word in text for word in ["rude", "unsafe", "speed"]):
+        return pd.Series(["Safety", "Improve driver training"])
+
+    else:
+        return pd.Series(["Other", "Improve app performance"])
+
+# Apply model
+df_neg[["Feature_Area", "Improvement"]] = df_neg["Review"].apply(analyze_review)
+
+# Visualization
+sns.countplot(
+    data=df_neg,
+    x="Feature_Area",
+    order=df_neg["Feature_Area"].value_counts().index
+)
+
+plt.title("Negative Review Analysis")
+plt.xticks(rotation=45)
+plt.show()
+
+# Summary
+summary = df_neg.groupby(
+    ["Feature_Area", "Improvement"]
+).size().reset_index(name="Count")
+
+print("\nImprovement Strategy:")
+print(summary)
+
+# Most common issue
+top_issue = summary.sort_values(
+    by="Count",
+    ascending=False
+).iloc[0]["Feature_Area"]
+
+print("\nTop Issue:", top_issue)
+
+PSEUDO-CODE:
+
+START
+
+Load review dataset
+
+Filter negative reviews:
+    Rating <= 2
+
+FOR each review:
+    Check keywords
+
+    IF cancellation keywords:
+        Reliability issue
+
+    ELSE IF payment keywords:
+        Billing issue
+
+    ELSE IF vehicle keywords:
+        Ride quality issue
+
+    ELSE IF behavior keywords:
+        Safety issue
+
+    ELSE:
+        Other issue
+
+Store feature area and improvement suggestion
+
+Create count plot of issues
+
+Group issues and count frequency
+
+Display improvement strategy
+
+Find most common issue
+
+END
